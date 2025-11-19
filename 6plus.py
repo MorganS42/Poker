@@ -217,16 +217,16 @@ def simulate_all_hand_categories(n_sims):
 
     return category_counts
 
-sims = 100000
+sims = 200000
 category_counts = simulate_all_hand_categories(sims)
 
 labels = list(hand_category.values()) 
-vals   = [category_counts[l] / sims for l in labels]
+vals   = [category_counts[l] / sims / 6 for l in labels]
 
 plt.figure()
 plt.bar(labels, vals)
 plt.xticks(rotation=45, ha="right")
-plt.title("Frequency of Winning Hand Types")
+plt.title("Frequency of All Hand Types")
 plt.ylabel("Proportion")
 plt.tight_layout()
 plt.show()
