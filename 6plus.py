@@ -39,6 +39,7 @@ def straight_high_shortdeck(ranks):
         if w == list(range(w[0], w[0] + 5)):
             return w[-1]
 
+    # A 6 7 8 9 Straight
     wheel_set = {14, 6, 7, 8, 9}
     if wheel_set.issubset(r):
         return 9
@@ -153,17 +154,17 @@ def simulate(n_sims):
 
     return win_counts, dealt_counts
 
-win_counts, dealt_counts = simulate(50000)
+win_counts, dealt_counts = simulate(100000)
 
 strength = {
     label: win_counts[label] / dealt_counts[label]
     for label in dealt_counts
 }
 
-top10 = sorted(strength.items(), key=lambda x: x[1], reverse=True)[:10]
+relevant = sorted(strength.items(), key=lambda x: x[1], reverse=False)[:10]
 
-labels = [label for label, _ in top10]
-vals   = [val for _, val in top10]
+labels = [label for label, _ in relevant]
+vals   = [val for _, val in relevant]
 
 plt.figure()
 plt.bar(labels, vals)
