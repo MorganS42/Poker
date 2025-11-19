@@ -191,23 +191,37 @@ strength = {
 # plt.tight_layout()
 # plt.show()
 
-def simulate_hand_categories(n_sims):
+# def simulate_hand_categories(n_sims):
+#     category_counts = Counter()
+
+#     for _ in range(n_sims):
+#         hands, community = deal()
+#         win_idxs, _, best_rank = winners(hands, community)
+
+#         category = best_rank[0]
+#         category_counts[hand_category[category]] += 1
+
+#     return category_counts
+
+def simulate_all_hand_categories(n_sims):
     category_counts = Counter()
 
     for _ in range(n_sims):
         hands, community = deal()
-        win_idxs, _, best_rank = winners(hands, community)
 
-        category = best_rank[0]
-        category_counts[hand_category[category]] += 1
+        for h in hands:
+            best_rank, _ = best5of7(h + community)
+            category = best_rank[0]
+
+            category_counts[hand_category[category]] += 1
 
     return category_counts
 
 sims = 100000
-category_counts = simulate_hand_categories(sims)
+category_counts = simulate_all_hand_categories(sims)
 
-labels = list(category_counts.keys())
-vals   = [category_counts[l] for l / sims in labels]
+labels = list(hand_category.values()) 
+vals   = [category_counts[l] / sims for l in labels]
 
 plt.figure()
 plt.bar(labels, vals)
