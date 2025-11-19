@@ -1,0 +1,174 @@
+import random
+import itertools
+import matplotlib.pyplot as plt
+from collections import Counter
+
+HAND_SIZE = 2
+COMMUNITY_SIZE = 5
+players = 6
+
+suits = ["S", "C", "D", "H"]
+values = ["6", "7", "8", "9", "T", "J", "Q", "K", "A"]
+
+def reset():
+    deck = []
+    for suit in suits:
+        for value in values:
+            deck.append(value + suit)
+    return deck
+
+def deal():
+    deck = reset()
+    random.shuffle(deck)
+    hands = [deck[2 * i : 2 * i + 2] for i in range(players)]
+    community = deck[2 * players: 2 * players + COMMUNITY_SIZE]
+    return hands, community
+
+rank_map = {r : i for i, r in enumerate("..6789TJQKA")}
+
+def card_rank(c):
+    return rank_map[c[0]]
+
+def straight_high_shortdeck(ranks):
+    r = sorted(set(ranks))
+    if len(r) < 5:
+        return 0
+
+    for i in range(len(r) - 4):
+        w = r[i:i+5]
+        if w == list(range(w[0], w[0] + 5)):
+            return w[-1]
+
+    wheel_set = {14, 6, 7, 8, 9}
+    if wheel_set.issubset(r):
+        return 9
+
+    return 0
+
+def rank5(cards):
+    ranks = [card_rank(c) for c in cards]
+    suits_ = [c[1] for c in cards]
+
+    flush = len(set(suits_)) == 1
+    sh = straight_high_shortdeck(ranks)
+
+    if flush and sh:
+        return (8, sh, sorted(ranks, reverse=True))
+
+    counts = {}
+    for v in ranks:
+        counts[v] = counts.get(v, 0) + 1
+    items = sorted(((cnt, val) for val, cnt in counts.items()), reverse=True)
+
+    if items[0][0] == 4:
+        quad = items[0][1]
+        kicker = max(v for v in ranks if v != quad)
+        return (7, quad, kicker)
+
+    if items[0][0] == 3 and items[1][0] == 2:
+        fullhouse_rank = items[0][1]
+        pair_rank = items[1][1]
+        fullhouse_tuple = (5, fullhouse_rank, pair_rank)
+        fh = fullhouse_tuple
+    else:
+        fh = None
+
+    if flush:
+        return (6, sorted(ranks, reverse=True))
+
+    if fh is not None:
+        return fh
+
+    if sh:
+        return (4, sh, sorted(ranks, reverse=True))
+
+    if items[0][0] == 3:
+        trips = items[0][1]
+        kickers = sorted((v for v in ranks if v != trips), reverse=True)[:2]
+        return (3, trips, kickers)
+
+    if items[0][0] == 2 and items[1][0] == 2:
+        ph = max(items[0][1], items[1][1])
+        pl = min(items[0][1], items[1][1])
+        kicker = max(v for v in ranks if v != ph and v != pl)
+        return (2, ph, pl, kicker)
+
+    if items[0][0] == 2:
+        pair = items[0][1]
+        kickers = sorted((v for v in ranks if v != pair), reverse=True)[:3]
+        return (1, pair, kickers)
+
+    return (0, sorted(ranks, reverse=True))
+
+def best5of7(cards7):
+    best = None
+    best_combo = None
+    for combo in itertools.combinations(cards7, 5):
+        r = rank5(combo)
+        if best is None or r > best:
+            best = r
+            best_combo = combo
+    return best, list(best_combo)
+
+def evaluate(hands, community):
+    out = []
+    for h in hands:
+        out.append(best5of7(h + community))
+    return out
+
+def winners(hands, community):
+    evals = evaluate(hands, community)
+    best = max(e[0] for e in evals)
+    idxs = [i for i, e in enumerate(evals) if e[0] == best]
+    return idxs, [evals[i][1] for i in idxs], best
+
+def canonical_starting_hand(two_cards):
+    a, b = two_cards
+    ra, rb = a[0], b[0]
+    sa, sb = a[1], b[1]
+
+    if rank_map[ra] < rank_map[rb]:
+        ra, rb, sa, sb = rb, ra, sb, sa
+
+    if ra == rb:
+        return ra + rb
+
+    suited = (sa == sb)
+    return ra + rb + ("s" if suited else "o")
+
+def simulate(n_sims):
+    win_counts = Counter()
+    dealt_counts = Counter()
+
+    for _ in range(n_sims):
+        hands, community = deal()
+
+        for h in hands:
+            dealt_counts[canonical_starting_hand(h)] += 1
+
+        win_idxs, _, _ = winners(hands, community)
+        for i in win_idxs:
+            label = canonical_starting_hand(hands[i])
+            win_counts[label] += 1
+
+    return win_counts, dealt_counts
+
+win_counts, dealt_counts = simulate(50000)
+
+strength = {
+    label: win_counts[label] / dealt_counts[label]
+    for label in dealt_counts
+}
+
+top10 = sorted(strength.items(), key=lambda x: x[1], reverse=True)[:10]
+
+labels = [label for label, _ in top10]
+vals   = [val for _, val in top10]
+
+plt.figure()
+plt.bar(labels, vals)
+plt.xticks(rotation = 45, ha = "right")
+plt.title("Estimated win rate")
+plt.ylabel("Win rate when dealt")
+plt.tight_layout()
+plt.show()
