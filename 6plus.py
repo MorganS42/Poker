@@ -213,7 +213,7 @@ plt.figure()
 plt.bar(labels, vals)
 plt.xticks(rotation=45, ha="right")
 plt.title("Frequency of Winning Hand Types")
-plt.ylabel("Count in 100k simulations")
+plt.ylabel("Proportion")
 plt.tight_layout()
 plt.show()
 
