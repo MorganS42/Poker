@@ -3,6 +3,19 @@ import itertools
 import matplotlib.pyplot as plt
 from collections import Counter
 
+# strength to name
+hand_category = {
+    8: "Straight Flush",
+    7: "Four of a Kind",
+    6: "Flush",
+    5: "Full House",
+    4: "Straight",
+    3: "Three of a Kind",
+    2: "Two Pair",
+    1: "Pair",
+    0: "High Card"
+}
+
 HAND_SIZE = 2
 COMMUNITY_SIZE = 5
 players = 6
@@ -161,15 +174,45 @@ strength = {
     for label in dealt_counts
 }
 
-relevant = sorted(strength.items(), key=lambda x: x[1], reverse=False)[:10]
+# # Top 10
+# relevant = sorted(strength.items(), key=lambda x: x[1], reverse=True)[:10]
 
-labels = [label for label, _ in relevant]
-vals   = [val for _, val in relevant]
+# # Bottom 10
+# # relevant = sorted(strength.items(), key=lambda x: x[1], reverse=False)[:10]
+
+# labels = [label for label, _ in relevant]
+# vals   = [val for _, val in relevant]
+
+# plt.figure()
+# plt.bar(labels, vals)
+# plt.xticks(rotation = 45, ha = "right")
+# plt.title("Estimated win rate")
+# plt.ylabel("Win rate when dealt")
+# plt.tight_layout()
+# plt.show()
+
+def simulate_hand_categories(n_sims):
+    category_counts = Counter()
+
+    for _ in range(n_sims):
+        hands, community = deal()
+        win_idxs, _, best_rank = winners(hands, community)
+
+        category = best_rank[0]
+        category_counts[hand_category[category]] += 1
+
+    return category_counts
+
+category_counts = simulate_hand_categories(100000)
+
+labels = list(category_counts.keys())
+vals   = [category_counts[l] for l in labels]
 
 plt.figure()
 plt.bar(labels, vals)
-plt.xticks(rotation = 45, ha = "right")
-plt.title("Estimated win rate")
-plt.ylabel("Win rate when dealt")
+plt.xticks(rotation=45, ha="right")
+plt.title("Frequency of Winning Hand Types")
+plt.ylabel("Count in 100k simulations")
 plt.tight_layout()
 plt.show()
+
