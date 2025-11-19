@@ -203,10 +203,11 @@ def simulate_hand_categories(n_sims):
 
     return category_counts
 
-category_counts = simulate_hand_categories(100000)
+sims = 100000
+category_counts = simulate_hand_categories(sims)
 
 labels = list(category_counts.keys())
-vals   = [category_counts[l] for l in labels]
+vals   = [category_counts[l] for l / sims in labels]
 
 plt.figure()
 plt.bar(labels, vals)
