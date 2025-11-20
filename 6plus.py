@@ -193,99 +193,99 @@ def simulate(n_sims):
 # plt.tight_layout()
 # plt.show()
 
-# def simulate_hand_categories(n_sims):
-#     category_counts = Counter()
+def simulate_hand_categories(n_sims):
+    category_counts = Counter()
 
-#     for _ in range(n_sims):
-#         hands, community = deal()
-#         win_idxs, _, best_rank = winners(hands, community)
+    for _ in range(n_sims):
+        hands, community = deal()
+        win_idxs, _, best_rank = winners(hands, community)
 
-#         category = best_rank[0]
-#         category_counts[hand_category[category]] += 1
+        category = best_rank[0]
+        category_counts[hand_category[category]] += 1
 
-#     return category_counts
+    return category_counts
 
-# def simulate_all_hand_categories(n_sims):
-#     category_counts = Counter()
+def simulate_all_hand_categories(n_sims):
+    category_counts = Counter()
 
-#     for _ in range(n_sims):
-#         hands, community = deal()
+    for _ in range(n_sims):
+        hands, community = deal()
 
-#         for h in hands:
-#             best_rank, _ = best5of7(h + community)
-#             category = best_rank[0]
+        for h in hands:
+            best_rank, _ = best5of7(h + community)
+            category = best_rank[0]
 
-#             category_counts[hand_category[category]] += 1
+            category_counts[hand_category[category]] += 1
 
-#     return category_counts
+    return category_counts
 
-# from mpl_toolkits.mplot3d import Axes3D
-# import numpy as np
-# import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import matplotlib.pyplot as plt
 
-# sims = 10_00
+sims = 10_00
 
-# player_values = list(range(2, 11))
+player_values = list(range(2, 11))
 
-# order = [
-#     "Straight",
-#     "Full House",
-#     "Two Pair",
-#     "Three of a Kind",
-#     "Flush",
-#     "Pair",
-#     "Four of a Kind",
-#     "Straight Flush",
-#     "High Card"
-# ]
+order = [
+    "Straight",
+    "Full House",
+    "Two Pair",
+    "Three of a Kind",
+    "Flush",
+    "Pair",
+    "Four of a Kind",
+    "Straight Flush",
+    "High Card"
+]
 
-# labels = order
+labels = order
 
-# num_players = len(player_values)
-# num_cats = len(labels)
+num_players = len(player_values)
+num_cats = len(labels)
 
-# data = np.zeros((num_players, num_cats), dtype=float)
+data = np.zeros((num_players, num_cats), dtype=float)
 
-# for i, players in enumerate(player_values):
-#     category_counts = simulate_hand_categories(sims)
+for i, players in enumerate(player_values):
+    category_counts = simulate_hand_categories(sims)
 
-#     for j, label in enumerate(labels):
-#         # data[i, j] = 0 if category_counts[label] == 0 else -math.log(1 - category_counts[label] / sims)
-#         data[i, j] = category_counts[label] / sims
-#     print(players)
+    for j, label in enumerate(labels):
+        # data[i, j] = 0 if category_counts[label] == 0 else -math.log(1 - category_counts[label] / sims)
+        data[i, j] = category_counts[label] / sims
+    print(players)
 
-# fig = plt.figure()
-# ax = fig.add_subplot(111, projection="3d")
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
 
-# x_pos = np.arange(num_cats)
-# y_pos = np.arange(num_players)
+x_pos = np.arange(num_cats)
+y_pos = np.arange(num_players)
 
-# xpos, ypos = np.meshgrid(x_pos, y_pos)
-# xpos = xpos.ravel()
-# ypos = ypos.ravel()
-# zpos = np.zeros_like(xpos)
+xpos, ypos = np.meshgrid(x_pos, y_pos)
+xpos = xpos.ravel()
+ypos = ypos.ravel()
+zpos = np.zeros_like(xpos)
 
-# dx = 0.5 * np.ones_like(xpos)
-# dy = 0.5 * np.ones_like(ypos)
-# dz = data.ravel()
+dx = 0.5 * np.ones_like(xpos)
+dy = 0.5 * np.ones_like(ypos)
+dz = data.ravel()
 
-# norm = plt.Normalize(dz.min(), dz.max())  
-# colors = cm.viridis(norm(dz))
+norm = plt.Normalize(dz.min(), dz.max())  
+colors = cm.viridis(norm(dz))
 
-# ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color=colors, shade=True, zsort='average')
+ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color=colors, shade=True, zsort='average')
 
-# ax.set_title("Winning Hand Categories")
-# # ax.set_xlabel("Hand category")
-# ax.set_ylabel("Number of players")
-# ax.set_zlabel("Proportion")
+ax.set_title("Winning Hand Categories")
+# ax.set_xlabel("Hand category")
+ax.set_ylabel("Number of players")
+ax.set_zlabel("Proportion")
 
-# ax.set_xticks(np.arange(num_cats) + 0.25)
-# ax.set_xticklabels(labels, rotation=45, ha="right")
+ax.set_xticks(np.arange(num_cats) + 0.25)
+ax.set_xticklabels(labels, rotation=45, ha="right")
 
-# ax.set_yticks(np.arange(num_players) + 0.25)
-# ax.set_yticklabels(player_values)
+ax.set_yticks(np.arange(num_players) + 0.25)
+ax.set_yticklabels(player_values)
 
-# plt.tight_layout()
-# plt.show()
+plt.tight_layout()
+plt.show()
 
 
