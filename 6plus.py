@@ -62,7 +62,12 @@ def straight_high_shortdeck(ranks):
 
     return 0
 
+rank5memoized = {}
+
 def rank5(cards):
+    if cards in rank5memoized.keys():
+        return rank5memoized.get(cards)
+
     ranks = [card_rank(c) for c in cards]
     suits_ = [c[1] for c in cards]
 
@@ -70,7 +75,9 @@ def rank5(cards):
     sh = straight_high_shortdeck(ranks)
 
     if flush and sh:
-        return (8, sh, sorted(ranks, reverse=True))
+        out = (8, sh, sorted(ranks, reverse=True))
+        rank5memoized[cards] = out
+        return out
 
     counts = {}
     for v in ranks:
@@ -80,7 +87,9 @@ def rank5(cards):
     if items[0][0] == 4:
         quad = items[0][1]
         kicker = max(v for v in ranks if v != quad)
-        return (7, quad, kicker)
+        out = (7, quad, kicker)
+        rank5memoized[cards] = out
+        return out
 
     if items[0][0] == 3 and items[1][0] == 2:
         fullhouse_rank = items[0][1]
@@ -91,31 +100,45 @@ def rank5(cards):
         fh = None
 
     if flush:
-        return (6, sorted(ranks, reverse=True))
+        out = (6, sorted(ranks, reverse=True))
+        rank5memoized[cards] = out
+        return out
 
     if fh is not None:
-        return fh
+        out = fh
+        rank5memoized[cards] = out
+        return out
 
     if sh:
-        return (4, sh, sorted(ranks, reverse=True))
+        out = (4, sh, sorted(ranks, reverse=True))
+        rank5memoized[cards] = out
+        return out
 
     if items[0][0] == 3:
         trips = items[0][1]
         kickers = sorted((v for v in ranks if v != trips), reverse=True)[:2]
-        return (3, trips, kickers)
+        out = (3, trips, kickers)
+        rank5memoized[cards] = out
+        return out
 
     if items[0][0] == 2 and items[1][0] == 2:
         ph = max(items[0][1], items[1][1])
         pl = min(items[0][1], items[1][1])
         kicker = max(v for v in ranks if v != ph and v != pl)
-        return (2, ph, pl, kicker)
+        out = (2, ph, pl, kicker)
+        rank5memoized[cards] = out
+        return out
 
     if items[0][0] == 2:
         pair = items[0][1]
         kickers = sorted((v for v in ranks if v != pair), reverse=True)[:3]
-        return (1, pair, kickers)
+        out = (1, pair, kickers)
+        rank5memoized[cards] = out
+        return out
 
-    return (0, sorted(ranks, reverse=True))
+    out = (0, sorted(ranks, reverse=True))
+    rank5memoized[cards] = out
+    return out
 
 def best5of7(cards7):
     best = None
@@ -289,7 +312,7 @@ def simulate(n_sims):
 # plt.tight_layout()
 # plt.show()
 
-sims = 500_000
+sims = 1_000_000
 win_counts, dealt_counts = simulate(sims)
 
 strength = {
