@@ -1,9 +1,10 @@
 import math
 import random
 import itertools
-from matplotlib import cm
 import matplotlib.pyplot as plt
 from collections import Counter
+import numpy as np
+import matplotlib.pyplot as plt
 
 # strength to name
 hand_category = {
@@ -20,7 +21,7 @@ hand_category = {
 
 HAND_SIZE = 2
 COMMUNITY_SIZE = 5
-players = 2
+players = 6
 
 suits = ["S", "C", "D", "H"]
 values = ["6", "7", "8", "9", "T", "J", "Q", "K", "A"]
@@ -193,99 +194,170 @@ def simulate(n_sims):
 # plt.tight_layout()
 # plt.show()
 
-def simulate_hand_categories(n_sims):
-    category_counts = Counter()
+# def simulate_hand_categories(n_sims):
+#     category_counts = Counter()
 
-    for _ in range(n_sims):
-        hands, community = deal()
-        win_idxs, _, best_rank = winners(hands, community)
+#     for _ in range(n_sims):
+#         hands, community = deal()
+#         win_idxs, _, best_rank = winners(hands, community)
 
-        category = best_rank[0]
-        category_counts[hand_category[category]] += 1
+#         category = best_rank[0]
+#         category_counts[hand_category[category]] += 1
 
-    return category_counts
+#     return category_counts
 
-def simulate_all_hand_categories(n_sims):
-    category_counts = Counter()
+# def simulate_all_hand_categories(n_sims):
+#     category_counts = Counter()
 
-    for _ in range(n_sims):
-        hands, community = deal()
+#     for _ in range(n_sims):
+#         hands, community = deal()
 
-        for h in hands:
-            best_rank, _ = best5of7(h + community)
-            category = best_rank[0]
+#         for h in hands:
+#             best_rank, _ = best5of7(h + community)
+#             category = best_rank[0]
 
-            category_counts[hand_category[category]] += 1
+#             category_counts[hand_category[category]] += 1
 
-    return category_counts
+#     return category_counts
 
-from mpl_toolkits.mplot3d import Axes3D
-import numpy as np
-import matplotlib.pyplot as plt
+# from mpl_toolkits.mplot3d import Axes3D
+# import numpy as np
+# import matplotlib.pyplot as plt
 
-sims = 10_00
+# sims = 10_00
 
-player_values = list(range(2, 11))
+# player_values = list(range(2, 11))
 
-order = [
-    "Straight",
-    "Full House",
-    "Two Pair",
-    "Three of a Kind",
-    "Flush",
-    "Pair",
-    "Four of a Kind",
-    "Straight Flush",
-    "High Card"
-]
+# order = [
+#     "Straight",
+#     "Full House",
+#     "Two Pair",
+#     "Three of a Kind",
+#     "Flush",
+#     "Pair",
+#     "Four of a Kind",
+#     "Straight Flush",
+#     "High Card"
+# ]
 
-labels = order
+# labels = order
 
-num_players = len(player_values)
-num_cats = len(labels)
+# num_players = len(player_values)
+# num_cats = len(labels)
 
-data = np.zeros((num_players, num_cats), dtype=float)
+# data = np.zeros((num_players, num_cats), dtype=float)
 
-for i, players in enumerate(player_values):
-    category_counts = simulate_hand_categories(sims)
+# for i, players in enumerate(player_values):
+#     category_counts = simulate_hand_categories(sims)
 
-    for j, label in enumerate(labels):
-        # data[i, j] = 0 if category_counts[label] == 0 else -math.log(1 - category_counts[label] / sims)
-        data[i, j] = category_counts[label] / sims
-    print(players)
+#     for j, label in enumerate(labels):
+#         # data[i, j] = 0 if category_counts[label] == 0 else -math.log(1 - category_counts[label] / sims)
+#         data[i, j] = category_counts[label] / sims
+#     print(players)
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection="3d")
 
-x_pos = np.arange(num_cats)
-y_pos = np.arange(num_players)
+# x_pos = np.arange(num_cats)
+# y_pos = np.arange(num_players)
 
-xpos, ypos = np.meshgrid(x_pos, y_pos)
-xpos = xpos.ravel()
-ypos = ypos.ravel()
-zpos = np.zeros_like(xpos)
+# xpos, ypos = np.meshgrid(x_pos, y_pos)
+# xpos = xpos.ravel()
+# ypos = ypos.ravel()
+# zpos = np.zeros_like(xpos)
 
-dx = 0.5 * np.ones_like(xpos)
-dy = 0.5 * np.ones_like(ypos)
-dz = data.ravel()
+# dx = 0.5 * np.ones_like(xpos)
+# dy = 0.5 * np.ones_like(ypos)
+# dz = data.ravel()
 
-norm = plt.Normalize(dz.min(), dz.max())  
-colors = cm.viridis(norm(dz))
+# norm = plt.Normalize(dz.min(), dz.max())  
+# colors = cm.viridis(norm(dz))
 
-ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color=colors, shade=True, zsort='average')
+# ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color=colors, shade=True, zsort='average')
 
-ax.set_title("Winning Hand Categories")
-# ax.set_xlabel("Hand category")
-ax.set_ylabel("Number of players")
-ax.set_zlabel("Proportion")
+# ax.set_title("Winning Hand Categories")
+# # ax.set_xlabel("Hand category")
+# ax.set_ylabel("Number of players")
+# ax.set_zlabel("Proportion")
 
-ax.set_xticks(np.arange(num_cats) + 0.25)
-ax.set_xticklabels(labels, rotation=45, ha="right")
+# ax.set_xticks(np.arange(num_cats) + 0.25)
+# ax.set_xticklabels(labels, rotation=45, ha="right")
 
-ax.set_yticks(np.arange(num_players) + 0.25)
-ax.set_yticklabels(player_values)
+# ax.set_yticks(np.arange(num_players) + 0.25)
+# ax.set_yticklabels(player_values)
 
+# plt.tight_layout()
+# plt.show()
+
+sims = 500_000
+win_counts, dealt_counts = simulate(sims)
+
+strength = {
+    label: win_counts[label] / dealt_counts[label]
+    for label in dealt_counts
+}
+
+rank_order = values[::-1]
+n = len(rank_order)
+
+grid = np.zeros((n, n))
+labels_grid = [[None]*n for _ in range(n)]
+
+for i, r1 in enumerate(rank_order):
+    for j, r2 in enumerate(rank_order):
+        # diagonal
+        if r1 == r2:
+            key = r1 + r2
+        # above
+        elif i < j:
+            key = r1 + r2 + "s"
+        # below
+        else:
+            hi, lo = (r1, r2) if rank_map[r1] > rank_map[r2] else (r2, r1)
+            key = hi + lo + "o"
+
+        val = strength.get(key, np.nan)
+        grid[i, j] = val
+        labels_grid[i][j] = key
+
+flat_vals = grid[~np.isnan(grid)].ravel()
+sorted_vals = np.sort(flat_vals)
+
+def to_percentile(x):
+    idx = np.searchsorted(sorted_vals, x, side="right")
+    return 100 * idx / len(sorted_vals)
+
+percentile_grid = np.vectorize(to_percentile)(grid)
+
+fig, ax = plt.subplots(figsize=(8, 7))
+
+display = percentile_grid
+
+im = ax.imshow(display, cmap="coolwarm", origin="upper")
+
+ax.set_xticks(np.arange(n))
+ax.set_yticks(np.arange(n))
+ax.set_xticklabels(rank_order)
+ax.set_yticklabels(rank_order)
+
+ax.set_xlabel("Second card rank")
+ax.set_ylabel("First card rank")
+ax.set_title("Starting hand strength (percentile)")
+
+plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+
+for i in range(n):
+    for j in range(n):
+        v = display[i, j]
+        if np.isnan(v):
+            continue
+        hand_label = labels_grid[i][j]
+        ax.text(
+            j, i,
+            f"{hand_label}\n{v:.1f}%",
+            ha="center", va="center", fontsize=7, color="black"
+        )
+
+fig.colorbar(im, ax=ax, label="Percentile")
 plt.tight_layout()
 plt.show()
-
-
